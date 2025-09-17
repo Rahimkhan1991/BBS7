@@ -5,58 +5,106 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Token Protected Live Stream</title>
   <style>
+    :root {
+      --bg-color: #0d0d0d;
+      --card-bg: rgba(30, 30, 30, 0.9);
+      --accent: #28a745;
+      --accent-hover: #218838;
+      --text: #fff;
+      --error: #ff4d4d;
+      --radius: 14px;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       flex-direction: column;
+      overflow: hidden;
     }
-    .hidden {
-      display: none;
-    }
-    .token-box {
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+
+    h1, h2 {
+      margin: 0 0 20px 0;
+      font-weight: 600;
       text-align: center;
-      max-width: 400px;
-      width: 100%;
     }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      backdrop-filter: blur(12px);
+      animation: fadeIn 0.8s ease;
+    }
+
     input {
-      padding: 10px;
+      padding: 12px 14px;
       font-size: 16px;
-      border-radius: 6px;
+      border-radius: var(--radius);
       border: none;
-      margin-bottom: 10px;
-      width: 80%;
+      margin-bottom: 15px;
+      width: 100%;
+      outline: none;
+      background: #1c1c1c;
+      color: var(--text);
+      transition: all 0.2s ease;
     }
+
+    input:focus {
+      border: 2px solid var(--accent);
+      background: #222;
+    }
+
     button {
-      padding: 10px 20px;
+      padding: 12px 24px;
       font-size: 16px;
-      background: #28a745;
+      background: var(--accent);
       border: none;
-      border-radius: 6px;
+      border-radius: var(--radius);
       color: white;
       cursor: pointer;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      width: 100%;
     }
+
     button:hover {
-      background: #218838;
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(40, 167, 69, 0.4);
     }
+
+    .error {
+      color: var(--error);
+      margin-top: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
     .video-container {
       position: relative;
       width: 90%;
       max-width: 1280px;
       aspect-ratio: 16 / 9;
-      box-shadow: 0 0 20px rgba(0,0,0,0.7);
-      border-radius: 12px;
+      border-radius: var(--radius);
       overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+      animation: fadeIn 0.8s ease;
     }
+
     .video-container iframe {
       position: absolute;
       width: 100%;
@@ -65,34 +113,53 @@
       left: 0;
       border: none;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <!-- Token Input -->
-  <div id="tokenBox" class="token-box">
-    <h2>Enter Access Token</h2>
+  <!-- Token Box -->
+  <div id="tokenBox" class="card">
+    <h2>🔒 Enter Access Token</h2>
     <input type="password" id="tokenInput" placeholder="Enter token..." />
-    <br />
     <button onclick="checkToken()">Access Stream</button>
-    <p id="error" style="color: red; display: none;">Invalid token. Try again.</p>
+    <p id="error" class="error">Invalid token. Try again.</p>
   </div>
 
   <!-- Video Section -->
   <div id="videoSection" class="hidden video-container">
-    <iframe 
-      src="//ok.ru/videoembed/10386130869832?nochat=1&autoplay=1" 
-      allow="autoplay; fullscreen; picture-in-picture">
-    </iframe>
+    <iframe id="videoFrame" allow="autoplay; fullscreen; picture-in-picture"></iframe>
   </div>
 
   <script>
-    // 🔹 Replace with your Google Apps Script Web App URL
-    const API_URL = "https://script.google.com/macros/s/AKfycbwMRyfMBGOqJfhSU-jgU07xoefmJQFqhxuGyU5uJVuQfEjVRyb-KXNmmTf2WZa--A-b/exec";
+    // 🔹 Your Google Apps Script Web App endpoint
+    const API_URL = "https://script.google.com/macros/s/AKfycbwuPcuwK8YPA9ec0B46omnAyv9wLWPgJg88dzlX8cBtV2oWIpUvPhOghppojn_yTPLs/exec";
+
+    function generateUUID() {
+      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+      );
+    }
 
     async function checkToken() {
-      const token = document.getElementById("tokenInput").value;
-      const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
-      localStorage.setItem("deviceId", deviceId);
+      const errorEl = document.getElementById("error");
+      errorEl.style.display = "none";
+
+      const token = document.getElementById("tokenInput").value.trim();
+      if (!token) {
+        errorEl.innerText = "Please enter a token.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      let deviceId = localStorage.getItem("deviceId");
+      if (!deviceId) {
+        deviceId = crypto.randomUUID ? crypto.randomUUID() : generateUUID();
+        localStorage.setItem("deviceId", deviceId);
+      }
 
       try {
         const res = await fetch(API_URL, {
@@ -100,19 +167,22 @@
           body: JSON.stringify({ token, deviceId }),
           headers: { "Content-Type": "application/json" }
         });
+
         const data = await res.json();
 
-        if (data.success) {
+        if (data.success && data.videoUrl) {
           document.getElementById("tokenBox").classList.add("hidden");
+          const iframe = document.getElementById("videoFrame");
+          iframe.src = data.videoUrl; // dynamically inject secured link
           document.getElementById("videoSection").classList.remove("hidden");
         } else {
-          document.getElementById("error").style.display = "block";
-          document.getElementById("error").innerText = data.reason || "Invalid token";
+          errorEl.style.display = "block";
+          errorEl.innerText = data.reason || "Invalid token";
         }
       } catch (err) {
         console.error(err);
-        document.getElementById("error").style.display = "block";
-        document.getElementById("error").innerText = "Server error. Try again.";
+        errorEl.style.display = "block";
+        errorEl.innerText = "Server error. Try again.";
       }
     }
   </script>
