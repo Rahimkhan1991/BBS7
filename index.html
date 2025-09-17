@@ -145,56 +145,46 @@
     }
 
     async function checkToken() {
-  const errorEl = document.getElementById("error");
-  errorEl.style.display = "none";
+      const errorEl = document.getElementById("error");
+      errorEl.style.display = "none";
 
-  const token = document.getElementById("tokenInput").value.trim();
-  if (!token) {
-    errorEl.innerText = "Please enter a token.";
-    errorEl.style.display = "block";
-    return;
-  }
+      const token = document.getElementById("tokenInput").value.trim();
+      if (!token) {
+        errorEl.innerText = "Please enter a token.";
+        errorEl.style.display = "block";
+        return;
+      }
 
-  let deviceId = localStorage.getItem("deviceId");
-  if (!deviceId) {
-    deviceId = crypto.randomUUID ? crypto.randomUUID() : generateUUID();
-    localStorage.setItem("deviceId", deviceId);
-  }
+      let deviceId = localStorage.getItem("deviceId");
+      if (!deviceId) {
+        deviceId = crypto.randomUUID ? crypto.randomUUID() : generateUUID();
+        localStorage.setItem("deviceId", deviceId);
+      }
 
-<<<<<<< HEAD
       try {
         const res = await fetch(API_URL, {
           method: "POST",
           body: JSON.stringify({ token, deviceId }),
           headers: { "Content-Type": "application/json" }
         });
-=======
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, deviceId })
-    });
 
-    const data = await res.json();
->>>>>>> d88f6eb72ae073414af432239e844bba70f61052
+        const data = await res.json();
 
-    if (data.success && data.videoUrl) {
-      document.getElementById("tokenBox").classList.add("hidden");
-      const iframe = document.getElementById("videoFrame");
-      iframe.src = data.videoUrl;
-      document.getElementById("videoSection").classList.remove("hidden");
-    } else {
-      errorEl.style.display = "block";
-      errorEl.innerText = data.reason || "Invalid token";
+        if (data.success && data.videoUrl) {
+          document.getElementById("tokenBox").classList.add("hidden");
+          const iframe = document.getElementById("videoFrame");
+          iframe.src = data.videoUrl; // dynamically inject secured link
+          document.getElementById("videoSection").classList.remove("hidden");
+        } else {
+          errorEl.style.display = "block";
+          errorEl.innerText = data.reason || "Invalid token";
+        }
+      } catch (err) {
+        console.error(err);
+        errorEl.style.display = "block";
+        errorEl.innerText = "Server error. Try again.";
+      }
     }
-  } catch (err) {
-    console.error(err);
-    errorEl.style.display = "block";
-    errorEl.innerText = "Server error. Try again.";
-  }
-}
-
   </script>
 </body>
 </html>
