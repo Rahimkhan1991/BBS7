@@ -136,7 +136,7 @@
 
   <script>
     // 🔹 Your Google Apps Script Web App endpoint
-    const API_URL = "https://script.google.com/macros/s/AKfycbwZVNq2YKPuiMtTySXh-knoD6dEavbCGZYzUkWZhfOqDHcxxPFj064DX_OONEgGvxyR/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwZVNq2YKPuiMtTySXh-knoD6dEavbCGZYzUkWZhfOqDHcxxPFj064DX_OONEgGvxyR/exec"; // <-- Replace with Apps Script URL
 
     function generateUUID() {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -161,6 +161,14 @@
     localStorage.setItem("deviceId", deviceId);
   }
 
+<<<<<<< HEAD
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ token, deviceId }),
+          headers: { "Content-Type": "application/json" }
+        });
+=======
   try {
     const res = await fetch(API_URL, {
       method: "POST",
@@ -169,6 +177,7 @@
     });
 
     const data = await res.json();
+>>>>>>> d88f6eb72ae073414af432239e844bba70f61052
 
     if (data.success && data.videoUrl) {
       document.getElementById("tokenBox").classList.add("hidden");
