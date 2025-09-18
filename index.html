@@ -135,8 +135,8 @@
   </div>
 
   <script>
-    // 🔹 Your Google Apps Script Web App endpoint
-    const API_URL = "https://script.google.com/macros/s/AKfycbwZVNq2YKPuiMtTySXh-knoD6dEavbCGZYzUkWZhfOqDHcxxPFj064DX_OONEgGvxyR/exec"; // <-- Replace with Apps Script URL
+    // 🔹 Replace with your deployed Apps Script Web App URL (ending in /exec)
+    const API_URL = "https://script.google.com/macros/s/AKfycbzpSAq6WGbUTPSMrOGA7ri_Qt_DTTmuLGhKKG-mZ3ec_VoGuCX9t94BWLLrZi-LW5qK/exec";
 
     function generateUUID() {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -173,7 +173,7 @@
         if (data.success && data.videoUrl) {
           document.getElementById("tokenBox").classList.add("hidden");
           const iframe = document.getElementById("videoFrame");
-          iframe.src = data.videoUrl; // dynamically inject secured link
+          iframe.src = data.videoUrl;
           document.getElementById("videoSection").classList.remove("hidden");
         } else {
           errorEl.style.display = "block";
